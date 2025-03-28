@@ -20,3 +20,29 @@ def add_todo(request):
         serializer.save()
         return Response (serializer.data, status=status.HTTP_201_CREATED)
     return Response (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['PUT'])
+def update_todo(request, pk):
+    try:
+        todo = Todo.objects.get(pk=pk)
+    except Todo.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if 'completed' in request.data:
+        todo.completed = request.data['completed']
+        todo.save()
+        serializer = TodoSerializer(todo)
+        return Response(serializer.data)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def delete_todo(request, pk):
+    try:
+        todo = Todo.objects.get(pk=pk)
+    except Todo.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    todo.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
